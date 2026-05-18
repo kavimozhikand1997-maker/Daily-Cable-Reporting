@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Site Report</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f3ef;
+  --surface: #ffffff;
+  --border: #e2e0d8;
+  --border-strong: #c8c5ba;
+  --text: #1a1917;
+  --text-muted: #6b6860;
+  --text-hint: #9e9b94;
+  --accent: #1a1917;
+  --accent-fg: #ffffff;
+  --success-bg: #edf7f0;
+  --success-text: #1a6b35;
+  --danger-bg: #fdf0f0;
+  --danger-text: #8b2020;
+  --scope-bg: #f7f6f2;
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tab-btns {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+
+.tab-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: none;
+  color: var(--text-muted);
+  transition: all .15s;
+}
+
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+.container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 28px 20px 0;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.page-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-hint);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.grid2:last-child, .grid3:last-child { margin-bottom: 0; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field:last-child { }
+
+label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+input[type=text], input[type=date], input[type=number], select, textarea {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-strong);
+  background: #fff;
+}
+
+textarea { resize: vertical; min-height: 88px; line-height: 1.5; }
+
+input[type=number] { text-align: center; }
+
+.scope-wrapper { overflow-x: auto; }
+
+.scope-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.scope-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.scope-table th:first-child { text-align: left; font-family: 'DM Sans', sans-serif; }
+
+.scope-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--bg);
+}
+
+.scope-table td:first-child {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  padding-left: 0;
+  white-space: nowrap;
+}
+
+.scope-table td input[type=number] {
+  padding: 6px 4px;
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+  background: var(--scope-bg);
+  border: 1px solid transparent;
+  min-width: 52px;
+}
+
+.scope-table td input[type=number]:focus {
+  border-color: var(--border-strong);
+  background: #fff;
+}
+
+.scope-table tfoot td {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+  background: var(--bg);
+  padding: 8px 4px;
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.scope-table tfoot td:first-child { text-align: left; font-family: 'DM Sans', sans-serif; }
+
+.hint {
+  font-size: 13px;
+  color: var(--text-hint);
+  padding: 10px 0 2px;
+}
+
+.eqp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+
+.eqp-row span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.eqp-row input {
+  width: 70px;
+  font-size: 13px;
+}
+
+.btn-submit {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: none;
+  border-radius: var(--radius);
+  padding: 14px 28px;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity .15s;
+  letter-spacing: .01em;
+}
+
+.btn-submit:hover { opacity: .85; }
+
+.btn-sec {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.btn-sec:hover { background: var(--bg); }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text);
+  color: var(--accent-fg);
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999;
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-hint);
+  margin-bottom: 6px;
+}
+
+.metric-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.metric-value.small { font-size: 14px; margin-top: 2px; }
+
+.s-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 500px;
+}
+
+.s-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.s-table th:first-child { text-align: left; }
+
+.s-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--bg);
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.s-table td:first-child { text-align: left; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+
+.s-table tfoot td {
+  font-weight: 600;
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+  background: var(--bg);
+  padding: 8px;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-hint);
+  font-size: 14px;
+}
+
+.no-data .icon { font-size: 36px; margin-bottom: 12px; }
+
+.hidden { display: none !important; }
+
+.issues-block {
+  background: var(--danger-bg);
+  border: 1px solid #f5c8c8;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--danger-text);
+  line-height: 1.6;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: .04em;
+}
+
+.tag-yes { background: var(--danger-bg); color: var(--danger-text); }
+.tag-no { background: var(--success-bg); color: var(--success-text); }
+
+@media (max-width: 600px) {
+  .grid2 { grid-template-columns: 1fr; }
+  .grid3 { grid-template-columns: 1fr 1fr; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .page-title { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Site Report</div>
+  <div class="tab-btns">
+    <button class="tab-btn active" onclick="showView('form')">Daily Form</button>
+    <button class="tab-btn" onclick="showView('summary')">Summary</button>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- FORM VIEW -->
+<div id="form-view">
+  <div class="page-title">Daily site report</div>
+  <div class="page-sub">Fill in all sections and submit at end of day.</div>
+
+  <div class="card">
+    <div class="card-title">Report details</div>
+    <div class="grid2">
+      <div class="field"><label>Date of work</label><input type="date" id="work-date"></div>
+      <div class="field"><label>Company name</label><input type="text" id="company" placeholder="e.g. ABC Construction Pte Ltd"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Site / location</label><input type="text" id="location" placeholder="e.g. Zone 3 – North Block"></div>
+      <div class="field"><label>Reported by</label><input type="text" id="reporter" placeholder="Your name"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Team overview</div>
+    <div class="grid2">
+      <div class="field"><label>Total cable teams on site</label><input type="number" id="total-cable" min="0" value="0" oninput="updateCableTeams()"></div>
+      <div class="field"><label>Total equipment teams on site</label><input type="number" id="total-eqp" min="0" value="0" oninput="updateEqpTeams()"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cable teams — scope breakdown</div>
+    <div class="scope-wrapper">
+      <table class="scope-table" id="cable-table">
+        <thead>
+          <tr>
+            <th style="width:90px">Team</th>
+            <th>TH</th><th>PL</th><th>OP-CL</th><th>DIV</th><th>MISC</th><th>MNP</th><th>NRP</th><th>EQP</th>
+          </tr>
+        </thead>
+        <tbody id="cable-tbody"></tbody>
+        <tfoot><tr id="cable-tfoot"><td colspan="9" style="text-align:center;color:var(--text-hint);font-family:'DM Sans',sans-serif;font-size:13px;padding:12px 0">Set number of cable teams above to begin.</td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Equipment teams</div>
+    <div id="eqp-container"><p class="hint">Set number of equipment teams above to begin.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Issues &amp; blockers</div>
+    <div class="field">
+      <label>Describe any issues, delays or blockers today (leave blank if none)</label>
+      <textarea id="issues" placeholder="e.g. Material delay on TH scope — Team 2 stood down for 3hrs. Road access blocked at north entry."></textarea>
+    </div>
+  </div>
+
+  <button class="btn-submit" onclick="saveReport()">Submit daily report</button>
+</div>
+
+<!-- SUMMARY VIEW -->
+<div id="summary-view" class="hidden">
+  <div class="page-title">Report summary</div>
+  <div class="page-sub">Review and export today's data.</div>
+
+  <div id="no-data" class="no-data">
+    <div class="icon">📋</div>
+    No report submitted yet. Fill in the form and submit first.
+  </div>
+
+  <div id="summary-content" class="hidden">
+
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Date</div><div class="metric-value small" id="s-date">—</div></div>
+      <div class="metric"><div class="metric-label">Company</div><div class="metric-value small" id="s-company">—</div></div>
+      <div class="metric"><div class="metric-label">Cable teams</div><div class="metric-value" id="s-cable">0</div></div>
+      <div class="metric"><div class="metric-label">Equip. teams</div><div class="metric-value" id="s-eqp">0</div></div>
+    </div>
+
+    <div class="metrics" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="metric"><div class="metric-label">Total teams</div><div class="metric-value" id="s-total">0</div></div>
+      <div class="metric"><div class="metric-label">Location</div><div class="metric-value small" id="s-loc">—</div></div>
+      <div class="metric"><div class="metric-label">Issues logged</div><div class="metric-value small" id="s-issues-flag" style="margin-top:6px">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Cable scope breakdown</div>
+      <div style="overflow-x:auto">
+        <table class="s-table">
+          <thead><tr><th>Team</th><th>TH</th><th>PL</th><th>OP-CL</th><th>DIV</th><th>MISC</th><th>MNP</th><th>NRP</th><th>EQP</th></tr></thead>
+          <tbody id="s-cable-tbody"></tbody>
+          <tfoot><tr id="s-cable-tfoot"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="s-eqp-card">
+      <div class="card-title">Equipment teams</div>
+      <div id="s-eqp-content"></div>
+    </div>
+
+    <div class="card" id="s-issues-card" style="display:none">
+      <div class="card-title">Issues &amp; blockers</div>
+      <div class="issues-block" id="s-issues-text"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-sec" onclick="copyText()" style="flex:1">Copy as text</button>
+      <button class="btn-sec" onclick="downloadCSV()" style="flex:1">Download CSV</button>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCOPES = ['TH','PL','OP-CL','DIV','MISC','MNP','NRP','EQP'];
+let reportData = null;
+
+document.getElementById('work-date').value = new Date().toISOString().split('T')[0];
+
+function showView(v) {
+  document.getElementById('form-view').classList.toggle('hidden', v !== 'form');
+  document.getElementById('summary-view').classList.toggle('hidden', v !== 'summary');
+  document.querySelectorAll('.tab-btn').forEach((b, i) =>
+    b.classList.toggle('active', (v === 'form' && i === 0) || (v === 'summary' && i === 1)));
+  if (v === 'summary') renderSummary();
+}
+
+function updateCableTeams() {
+  const n = parseInt(document.getElementById('total-cable').value) || 0;
+  const tbody = document.getElementById('cable-tbody');
+  const tfoot = document.getElementById('cable-tfoot');
+  const existing = tbody.querySelectorAll('tr').length;
+
+  if (n > existing) {
+    for (let i = existing + 1; i <= n; i++) {
+      const tr = document.createElement('tr');
+      tr.dataset.team = i;
+      tr.innerHTML = `<td>Team ${i}</td>` +
+        SCOPES.map(s => `<td><input type="number" min="0" value="0" data-scope="${s}" aria-label="${s} team ${i}"></td>`).join('');
+      tbody.appendChild(tr);
+    }
+  } else {
+    const rows = tbody.querySelectorAll('tr');
+    for (let i = rows.length; i > n; i--) rows[i - 1].remove();
+  }
+
+  if (n === 0) {
+    tfoot.innerHTML = `<td colspan="9" style="text-align:center;color:var(--text-hint);font-family:'DM Sans',sans-serif;font-size:13px;padding:12px 0">Set number of cable teams above to begin.</td>`;
+  } else {
+    tfoot.innerHTML = `<td>Total</td>` + SCOPES.map(s => `<td id="ft-${s}">0</td>`).join('');
+    tbody.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateTotals));
+  }
+}
+
+function updateTotals() {
+  const tbody = document.getElementById('cable-tbody');
+  SCOPES.forEach(s => {
+    let sum = 0;
+    tbody.querySelectorAll(`[data-scope="${s}"]`).forEach(inp => sum += parseInt(inp.value) || 0);
+    const el = document.getElementById(`ft-${s}`);
+    if (el) el.textContent = sum;
+  });
+}
+
+function updateEqpTeams() {
+  const n = parseInt(document.getElementById('total-eqp').value) || 0;
+  const c = document.getElementById('eqp-container');
+  const existing = c.querySelectorAll('.eqp-row').length;
+
+  if (n === 0) { c.innerHTML = '<p class="hint">Set number of equipment teams above to begin.</p>'; return; }
+
+  if (existing === 0) c.innerHTML = '';
+
+  if (n > existing) {
+    for (let i = existing + 1; i <= n; i++) {
+      const div = document.createElement('div');
+      div.className = 'eqp-row';
+      div.innerHTML = `<span>Equipment team ${i}</span><input type="number" min="0" value="1" aria-label="Equipment team ${i} count">`;
+      c.appendChild(div);
+    }
+  } else {
+    const rows = c.querySelectorAll('.eqp-row');
+    for (let i = rows.length; i > n; i--) rows[i - 1].remove();
+    if (n === 0) c.innerHTML = '<p class="hint">Set number of equipment teams above to begin.</p>';
+  }
+}
+
+function saveReport() {
+  const date = document.getElementById('work-date').value;
+  const company = document.getElementById('company').value.trim();
+  const location = document.getElementById('location').value.trim();
+  const reporter = document.getElementById('reporter').value.trim();
+  const totalCable = parseInt(document.getElementById('total-cable').value) || 0;
+  const totalEqp = parseInt(document.getElementById('total-eqp').value) || 0;
+  const issues = document.getElementById('issues').value.trim();
+
+  const cableTeams = [];
+  document.querySelectorAll('#cable-tbody tr').forEach((row, i) => {
+    const entry = { team: i + 1, scopes: {} };
+    SCOPES.forEach(s => {
+      const inp = row.querySelector(`[data-scope="${s}"]`);
+      entry.scopes[s] = parseInt(inp ? inp.value : 0) || 0;
+    });
+    cableTeams.push(entry);
+  });
+
+  const eqpTeams = [];
+  document.querySelectorAll('#eqp-container .eqp-row').forEach((row, i) => {
+    const inp = row.querySelector('input[type=number]');
+    eqpTeams.push({ team: i + 1, count: parseInt(inp.value) || 0 });
+  });
+
+  reportData = { date, company, location, reporter, totalCable, totalEqp, issues, cableTeams, eqpTeams };
+  showToast('Report saved successfully');
+}
+
+function renderSummary() {
+  const noData = document.getElementById('no-data');
+  const content = document.getElementById('summary-content');
+  if (!reportData) { noData.classList.remove('hidden'); content.classList.add('hidden'); return; }
+  noData.classList.add('hidden'); content.classList.remove('hidden');
+
+  const d = reportData;
+  const dateStr = d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+  document.getElementById('s-date').textContent = dateStr;
+  document.getElementById('s-company').textContent = d.company || '—';
+  document.getElementById('s-cable').textContent = d.totalCable;
+  document.getElementById('s-eqp').textContent = d.totalEqp;
+  document.getElementById('s-total').textContent = d.totalCable + d.totalEqp;
+  document.getElementById('s-loc').textContent = d.location || '—';
+
+  const flagEl = document.getElementById('s-issues-flag');
+  flagEl.innerHTML = d.issues
+    ? `<span class="tag tag-yes">Yes</span>`
+    : `<span class="tag tag-no">None</span>`;
+
+  const tbody = document.getElementById('s-cable-tbody');
+  tbody.innerHTML = '';
+  const totals = {}; SCOPES.forEach(s => totals[s] = 0);
+  d.cableTeams.forEach(t => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>Team ${t.team}</td>` +
+      SCOPES.map(s => { totals[s] += (t.scopes[s] || 0); return `<td>${t.scopes[s] || 0}</td>`; }).join('');
+    tbody.appendChild(tr);
+  });
+  const tfoot = document.getElementById('s-cable-tfoot');
+  tfoot.innerHTML = `<td>Total</td>` + SCOPES.map(s => `<td>${totals[s]}</td>`).join('');
+
+  const eqpContent = document.getElementById('s-eqp-content');
+  eqpContent.innerHTML = d.eqpTeams.length === 0
+    ? '<p class="hint">No equipment teams reported.</p>'
+    : d.eqpTeams.map(t => `<div class="eqp-row"><span>Equipment team ${t.team}</span><span style="font-family:'DM Mono',monospace;font-weight:500">${t.count}</span></div>`).join('');
+
+  const issuesCard = document.getElementById('s-issues-card');
+  if (d.issues) {
+    issuesCard.style.display = '';
+    document.getElementById('s-issues-text').textContent = d.issues;
+  } else {
+    issuesCard.style.display = 'none';
+  }
+}
+
+function copyText() {
+  if (!reportData) return;
+  const d = reportData;
+  const dateStr = d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  const totals = {}; SCOPES.forEach(s => totals[s] = 0);
+  let txt = `DAILY SITE REPORT\n`;
+  txt += `${'─'.repeat(40)}\n`;
+  txt += `Date:        ${dateStr}\n`;
+  txt += `Company:     ${d.company || '—'}\n`;
+  txt += `Location:    ${d.location || '—'}\n`;
+  txt += `Reported by: ${d.reporter || '—'}\n\n`;
+  txt += `TEAMS\nCable: ${d.totalCable}  |  Equipment: ${d.totalEqp}  |  Total: ${d.totalCable + d.totalEqp}\n\n`;
+  txt += `CABLE SCOPE BREAKDOWN\n`;
+  txt += `Team\t` + SCOPES.join('\t') + '\n';
+  d.cableTeams.forEach(t => {
+    txt += `Team ${t.team}\t` + SCOPES.map(s => { totals[s] += (t.scopes[s] || 0); return t.scopes[s] || 0; }).join('\t') + '\n';
+  });
+  txt += `TOTAL\t` + SCOPES.map(s => totals[s]).join('\t') + '\n';
+  if (d.issues) txt += `\nISSUES & BLOCKERS\n${d.issues}\n`;
+  navigator.clipboard.writeText(txt).then(() => showToast('Copied to clipboard'));
+}
+
+function downloadCSV() {
+  if (!reportData) return;
+  const d = reportData;
+  const dateStr = d.date || '';
+  const totals = {}; SCOPES.forEach(s => totals[s] = 0);
+  let csv = 'Field,Value\n';
+  csv += `Date,${dateStr}\nCompany,"${d.company || ''}"\nLocation,"${d.location || ''}"\nReported By,"${d.reporter || ''}"\n`;
+  csv += `Cable Teams,${d.totalCable}\nEquipment Teams,${d.totalEqp}\nTotal Teams,${d.totalCable + d.totalEqp}\n\n`;
+  csv += 'Cable Scope Breakdown\n';
+  csv += 'Team,' + SCOPES.join(',') + '\n';
+  d.cableTeams.forEach(t => {
+    csv += `Team ${t.team},` + SCOPES.map(s => { totals[s] += (t.scopes[s] || 0); return t.scopes[s] || 0; }).join(',') + '\n';
+  });
+  csv += 'TOTAL,' + SCOPES.map(s => totals[s]).join(',') + '\n';
+  if (d.issues) csv += `\nIssues & Blockers,"${d.issues.replace(/"/g, "'")}"\n`;
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `site-report-${dateStr || 'export'}.csv`;
+  a.click();
+  showToast('CSV downloaded');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
